@@ -136,9 +136,9 @@ module.exports = function (grunt, npm, options) {
             if (i === 0) {
                 log.subhead("Linking modules");
             }
-            chdir(pkg[0]);
+            // chdir(pkg[0]);
             if (isBoolean(pkg[2]) ? pkg[2] : true) {
-                return npmCommand("link", []);
+                return npmCommand("link", [pkg[0]]);
             }
         }, 1)
         .forEach(function (pkg, i) {
@@ -148,8 +148,7 @@ module.exports = function (grunt, npm, options) {
             }
             if (isBoolean(pkg[2]) ? pkg[2] : true && options.install) {
                 log.debug(util.format("==== %s ====", getPackageName(pkg[0])));
-                chdir(pkg[0]);
-                return npmCommand("install", []);
+                return npmCommand("install", [pkg[0]]);
             }
         }, 1)
         .forEach(function (pkg, i) {
