@@ -19,6 +19,21 @@ module.exports = function (grunt, npm, options) {
         errors = [],
         cwd = process.cwd();
 
+    function npmCommand(cmd, args) {
+        if (!comb.isArray(args)) {
+            args = [args];
+        }
+        var ret = new comb.Promise();
+        npm.commands[cmd](args, function (err, result) {
+            if (err) {
+                ret.errback(err);
+            } else {
+                ret.callback();
+            }
+        });
+        return ret;
+    }
+
     function exec(cmds) {
         if (!comb.isArray(cmds)) {
             cmds = [cmds];
@@ -92,9 +107,7 @@ module.exports = function (grunt, npm, options) {
             }
             return cleanPromise.chain(function () {
                 if (shouldLink(pkg[0])) {
-                    return exec([
-                        {cmd: "npm", args: ["unlink", getPackageName(pkg[0]), "--global"]}
-                    ]);
+                    return npmCommand("unlink", getPackageName(pkg[0]));
                 }
             });
         } catch (e) {
@@ -125,7 +138,7 @@ module.exports = function (grunt, npm, options) {
             }
             chdir(pkg[0]);
             if (isBoolean(pkg[2]) ? pkg[2] : true) {
-                return exec({ cmd: "npm", args: ["link"]});
+                return npmCommand("link", []);
             }
         }, 1)
         .forEach(function (pkg, i) {
@@ -136,7 +149,7 @@ module.exports = function (grunt, npm, options) {
             if (isBoolean(pkg[2]) ? pkg[2] : true && options.install) {
                 log.debug(util.format("==== %s ====", getPackageName(pkg[0])));
                 chdir(pkg[0]);
-                return exec({cmd: "npm", args: ["install"]});
+                return npmCommand("install", []);
             }
         }, 1)
         .forEach(function (pkg, i) {
